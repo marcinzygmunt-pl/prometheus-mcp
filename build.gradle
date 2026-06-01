@@ -1,0 +1,57 @@
+plugins {
+    id 'io.micronaut.application' version '5.0.0'
+    id 'com.gradleup.shadow' version '8.3.6'
+}
+
+version = '1.0.0'
+group = 'pl.marcinzygmunt'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor 'io.micronaut:micronaut-http-validation'
+    annotationProcessor 'io.micronaut.serde:micronaut-serde-processor'
+    annotationProcessor 'io.micronaut.validation:micronaut-validation-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    compileOnly 'org.projectlombok:lombok'
+
+    // MCP server (Micronaut module on top of the official MCP Java SDK)
+    implementation 'io.micronaut.mcp:micronaut-mcp-server-java-sdk:1.0.0'
+
+    // HTTP server (serves the streamable /mcp endpoint) + client (talks to Prometheus API)
+    implementation 'io.micronaut:micronaut-http-server-netty'
+    implementation 'io.micronaut:micronaut-http-client'
+
+    implementation 'io.micronaut.serde:micronaut-serde-jackson'
+    implementation 'io.micronaut.validation:micronaut-validation'
+
+    // Without snakeyaml Micronaut 4+/5 silently ignores application.yml
+    runtimeOnly 'org.yaml:snakeyaml'
+    runtimeOnly 'ch.qos.logback:logback-classic'
+}
+
+application {
+    mainClass = 'pl.marcinzygmunt.Application'
+}
+
+java {
+    // Micronaut 5.0 baseline is Java 25
+    sourceCompatibility = JavaVersion.toVersion('25')
+    targetCompatibility = JavaVersion.toVersion('25')
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+micronaut {
+    version '5.0.0'
+    runtime 'netty'
+    testRuntime 'junit5'
+    processing {
+        incremental true
+        annotations 'pl.marcinzygmunt.*'
+    }
+}

@@ -1,0 +1,24 @@
+services:
+  prometheus-mcp:
+    build: .
+    image: prometheus-mcp:1.0.0
+    container_name: prometheus-mcp
+    ports:
+      # host:container — MCP clients connect to http://localhost:8765/mcp
+      - "8765:8080"
+    environment:
+      PROMETHEUS_BASE_URL: http://prometheus:9090
+      # Expose every metric instead of the default allowlist:
+      # PROM_METRICS_INCLUDE: ".*"
+      # PROM_METRICS_EXCLUDE: "go_.*|promhttp_.*|scrape_.*"
+      # PROM_MAX_TOOLS: "300"
+    networks:
+      - prometheus-net
+    restart: unless-stopped
+
+networks:
+  # Reuse the network created by the sibling prometheus stack (its containers: prometheus,
+  # load-generator, node-exporter). Verify the real name with:  docker network ls
+  prometheus-net:
+    external: true
+    name: prometheus-stack
